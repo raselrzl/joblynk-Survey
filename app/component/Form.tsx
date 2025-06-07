@@ -216,14 +216,14 @@ async function handleSubmit(e: FormEvent<HTMLFormElement>) {
       setSubmitted(true);
       setShowSuccessModal(true);
     } else {
-      // Show error from server action or fallback message
-      alert('This email or phone number already registered. Please try again with a new email or phone number.');
+      alert(result?.error || 'An unexpected error occurred. Please try again.');
     }
   } catch (err: any) {
     console.error('Survey submission failed:', err);
     alert(err.message || 'An unexpected error occurred. Please refresh the form and try again.');
   }
 }
+
 
 
 
