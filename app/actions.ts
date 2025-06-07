@@ -1,63 +1,49 @@
-"use server";
+// actions.ts
+'use server';
 
-import { revalidatePath } from "next/cache";
-import { prisma } from "./lib/prisma";
+import { revalidatePath } from 'next/cache';
+import { prisma } from './lib/prisma';
+import { Prisma } from '@prisma/client';
 
-export interface FormData {
-  name: string;
-  email: string;
-  phone: string;
-  ageRange: string;
-  education: string;
-  employment: string;
-  abroadInterest: string;
-  region: string;
-}
 
-export async function submitSurvey(formData: FormData) {
+// zodSchema.ts
+import { z } from 'zod';
+import { SurveyFormData, surveySchema } from './lib/surveySchema';
+
+
+
+export async function submitSurvey(data: SurveyFormData) {
   try {
-    const { name, email, phone, ageRange, education, employment, abroadInterest, region } = formData;
-
-    if (!email && !phone) {
-      return { success: false, error: 'Email or phone is required' };
-    }
+    const validated = surveySchema.parse(data);
 
     const existing = await prisma.surveyResponse.findFirst({
       where: {
-        OR: [{ email }, { phone }],
+        OR: [{ email: validated.email }, { phone: validated.phone }],
       },
     });
 
     if (existing) {
-      if (existing.email === email && existing.phone === phone) {
+      if (existing.email === validated.email && existing.phone === validated.phone) {
         return { success: false, error: 'This email and phone number are already registered.' };
-      } else if (existing.email === email) {
+      } else if (existing.email === validated.email) {
         return { success: false, error: 'This email is already registered.' };
-      } else if (existing.phone === phone) {
+      } else if (existing.phone === validated.phone) {
         return { success: false, error: 'This phone number is already registered.' };
       }
     }
 
     await prisma.surveyResponse.create({
-      data: {
-        name,
-        email,
-        phone,
-        ageRange,
-        education,
-        employment,
-        abroadInterest,
-        region,
-      },
+      data: validated,
     });
 
     revalidatePath('/');
     return { success: true };
   } catch (error) {
-    console.error('Survey submission error:', error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return { success: false, error: 'This email or phone number is already registered.' };
+    }
+
+    console.error('Survey submission error:', JSON.stringify(error, null, 2));
     return { success: false, error: 'Unexpected server error. Please try again.' };
   }
 }
-
-
-
