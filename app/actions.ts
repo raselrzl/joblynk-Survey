@@ -59,10 +59,6 @@ export async function submitSurvey(formData: FormData) {
     return { success: true };
   } catch (error) {
     console.error("submitSurvey error:", error);
-    return {
-      success: false,
-      error: "Something went wrong. Please try again later.",
-    };
   }
 }
 
