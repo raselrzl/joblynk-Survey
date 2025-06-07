@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { Loader2, TriangleAlert } from "lucide-react";
 import { submitSurvey } from "../actions";
+import Image from "next/image";
 type Region =
   | "sylhet"
   | "dhaka"
@@ -245,10 +246,7 @@ async function handleSubmit(e: FormEvent<HTMLFormElement>) {
 
   return (
     <div className="relative max-w-md mx-auto p-6 rounded-none shadow-lg border border-gray-100">
-      {/* Top right label */}
-      <div className="absolute top-4 right-4 bg-yellow-200 text-black px-4 py-1 rounded-full shadow-md text-sm font-semibold z-50">
-        {language === "bn" ? "চাকরি লিংক" : "Job Lynk"}
-      </div>
+    
       <button
         onClick={() => (window.location.href = "/")}
         className="
