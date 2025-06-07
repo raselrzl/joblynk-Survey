@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Link from "next/link";
-import { TriangleAlert } from "lucide-react";
+import { Loader2, TriangleAlert } from "lucide-react";
 import { submitSurvey } from "../actions";
 type Region =
   | "sylhet"
@@ -172,6 +172,7 @@ export default function SurveyForm() {
   const [language, setLanguage] = useState<"en" | "bn">("bn"); // default Bangla
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -208,7 +209,7 @@ async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     setShowValidationModal(true);
     return;
   }
-
+    setIsLoading(true);
   try {
     const result = await submitSurvey(formData);
 
@@ -221,6 +222,8 @@ async function handleSubmit(e: FormEvent<HTMLFormElement>) {
   } catch (err: any) {
     console.error('Survey submission failed:', err);
     alert(err.message || 'An unexpected error occurred. Please refresh the form and try again.');
+  }finally {
+    setIsLoading(false);
   }
 }
 
@@ -462,12 +465,14 @@ async function handleSubmit(e: FormEvent<HTMLFormElement>) {
               })}
             </div>
           </fieldset>
-          <Button
-            type="submit"
-            className="bg-[#D4AF37] text-black border border-[#D4AF37] hover:bg-yellow-600"
-          >
-            {language === "bn" ? "জমা দিন" : "Submit"}
-          </Button>
+         <Button
+  type="submit"
+  disabled={isLoading}
+  className="bg-[#D4AF37] cursor-pointer text-black border border-[#D4AF37] hover:bg-yellow-600 flex items-center justify-center gap-2"
+>
+  {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+  {language === 'bn' ? 'জমা দিন' : 'Submit'}
+</Button>
         </form>
       ) : (
         <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>

@@ -2,37 +2,40 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "./lib/prisma";
+
+export interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  ageRange: string;
+  education: string;
+  employment: string;
+  abroadInterest: string;
+  region: string;
+}
+
 export async function submitSurvey(formData: FormData) {
-  const {
-    name,
-    email,
-    phone,
-    ageRange,
-    education,
-    employment,
-    abroadInterest,
-    region,
-  } = formData;
-
-  if (!email && !phone) {
-    return { success: false, error: 'Email or phone is required' };
-  }
-
   try {
-    const orConditions = [];
+    const { name, email, phone, ageRange, education, employment, abroadInterest, region } = formData;
 
-    if (email) orConditions.push({ email });
-    if (phone) orConditions.push({ phone });
+    if (!email && !phone) {
+      return { success: false, error: 'Email or phone is required' };
+    }
 
     const existing = await prisma.surveyResponse.findFirst({
-      where: { OR: orConditions },
+      where: {
+        OR: [{ email }, { phone }],
+      },
     });
 
     if (existing) {
-      return {
-        success: false,
-        error: 'Email or phone number already used. Please use a new one.',
-      };
+      if (existing.email === email && existing.phone === phone) {
+        return { success: false, error: 'This email and phone number are already registered.' };
+      } else if (existing.email === email) {
+        return { success: false, error: 'This email is already registered.' };
+      } else if (existing.phone === phone) {
+        return { success: false, error: 'This phone number is already registered.' };
+      }
     }
 
     await prisma.surveyResponse.create({
@@ -51,21 +54,10 @@ export async function submitSurvey(formData: FormData) {
     revalidatePath('/');
     return { success: true };
   } catch (error) {
-    console.error('submitSurvey error:', error);
-    return {
-      success: false,
-      error: 'Something went wrong. Please try again later.',
-    }; // ✅ ensure return
+    console.error('Survey submission error:', error);
+    return { success: false, error: 'Unexpected server error. Please try again.' };
   }
 }
 
-export interface FormData {
-  name: string;
-  email: string;
-  phone: string;
-  ageRange: string;
-  education: string;
-  employment: string;
-  abroadInterest: string;
-  region: string;
-}
+
+
