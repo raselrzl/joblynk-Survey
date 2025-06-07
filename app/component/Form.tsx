@@ -212,7 +212,7 @@ async function handleSubmit(e: FormEvent<HTMLFormElement>) {
   try {
     const result = await submitSurvey(formData);
 
-    if (result.success) {
+    if (result?.success) {
       setSubmitted(true);
       setShowSuccessModal(true);
     } else {
