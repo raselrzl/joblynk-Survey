@@ -217,7 +217,7 @@ async function handleSubmit(e: FormEvent<HTMLFormElement>) {
       setShowSuccessModal(true);
     } else {
       // Show error from server action or fallback message
-      alert(result || 'An unexpected error occurred. Please try again.');
+      alert('This email or phone number already registered. Please try again with a new email or phone number.');
     }
   } catch (err: any) {
     console.error('Survey submission failed:', err);
