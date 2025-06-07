@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "./lib/prisma";
-
 export async function submitSurvey(formData: FormData) {
   const {
     name,
@@ -16,29 +15,23 @@ export async function submitSurvey(formData: FormData) {
   } = formData;
 
   if (!email && !phone) {
-    return { success: false, error: "Email or phone is required" };
+    return { success: false, error: 'Email or phone is required' };
   }
 
   try {
     const orConditions = [];
 
-    if (email) {
-      orConditions.push({ email });
-    }
-    if (phone) {
-      orConditions.push({ phone });
-    }
+    if (email) orConditions.push({ email });
+    if (phone) orConditions.push({ phone });
 
     const existing = await prisma.surveyResponse.findFirst({
-      where: {
-        OR: orConditions,
-      },
+      where: { OR: orConditions },
     });
 
     if (existing) {
       return {
         success: false,
-        error: "Email or phone number already used. Please use a new one.",
+        error: 'Email or phone number already used. Please use a new one.',
       };
     }
 
@@ -55,10 +48,14 @@ export async function submitSurvey(formData: FormData) {
       },
     });
 
-    revalidatePath("/");
+    revalidatePath('/');
     return { success: true };
   } catch (error) {
-    console.error("submitSurvey error:", error);
+    console.error('submitSurvey error:', error);
+    return {
+      success: false,
+      error: 'Something went wrong. Please try again later.',
+    }; // ✅ ensure return
   }
 }
 
