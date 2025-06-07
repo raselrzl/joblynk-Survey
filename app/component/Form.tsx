@@ -216,15 +216,15 @@ async function handleSubmit(e: FormEvent<HTMLFormElement>) {
       setSubmitted(true);
       setShowSuccessModal(true);
     } else {
-      // Handle the error returned from the server action
-      alert(result.error || 'An unexpected error occurred');
+      // Show error from server action or fallback message
+      alert(result || 'An unexpected error occurred. Please try again.');
     }
   } catch (err: any) {
-    // Catch any unexpected errors that still happen
     console.error('Survey submission failed:', err);
-    alert(err.message || 'An unexpected error occurred');
+    alert(err.message || 'An unexpected error occurred. Please refresh the form and try again.');
   }
 }
+
 
 
   const educationLabels =

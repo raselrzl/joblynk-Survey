@@ -8,48 +8,19 @@ export async function submitSurvey(formData: FormData) {
     const { name, email, phone, ageRange, education, employment, abroadInterest, region } = formData;
 
     if (!email && !phone) {
-      return { success: false, error: 'Email or phone is required' };
-    }
-
-    // Check if email or phone already exists
-    const existing = await prisma.surveyResponse.findFirst({
-      where: {
-        OR: [
-          { email },
-          { phone }
-        ],
-      },
-    });
-
-    if (existing) {
-      if (existing.email === email && existing.phone === phone) {
-        return { success: false, error: 'This email and phone number are already registered.' };
-      } else if (existing.email === email) {
-        return { success: false, error: 'This email is already registered.' };
-      } else if (existing.phone === phone) {
-        return { success: false, error: 'This phone number is already registered.' };
-      }
+      throw new Error('Email or phone is required');
     }
 
     await prisma.surveyResponse.create({
-      data: {
-        name,
-        email,
-        phone,
-        ageRange,
-        education,
-        employment,
-        abroadInterest,
-        region,
-      },
+      data: { name, email, phone, ageRange, education, employment, abroadInterest, region },
     });
 
     revalidatePath('/');
 
     return { success: true };
   } catch (error) {
-    // Log or handle unexpected errors here if needed
-    return { success: false, error: 'An unexpected error occurred.' };
+    console.error('submitSurvey error:', error);
+    throw error;  // rethrow so the client can handle it
   }
 }
 
